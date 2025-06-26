@@ -1,24 +1,21 @@
-# UID
+---
+sidebar_position: 1
+---
 
-UID is an unique identifier (UID) generator for Roblox, supporting multiple encoding formats and robust randomization. It is designed for use cases where uniqueness, security, and format flexibility are required, such as database keys, session tokens, and more.
+# Introduction
 
-- **Multiple Formats:** Generate UIDs as GUID, Hex, Base64URL, Base94JSONSAFE, or Base256ASCII.
-- **Customizable:** Create generator instances with custom seeds for deterministic or random output.
-- **Validation:** Easily check if a string matches a specific UID format.
-- **Roblox-Optimized:** Uses Roblox's Random and HttpService for secure, fast UID generation.
+quid is an unique identifier inspired by [ULID](https://github.com/ulid/spec) and [cuid2](https://github.com/paralleldrive/cuid2)
 
 ## Features
 
-- Generate cryptographically strong GUIDs
-- Generate UIDs in various encodings and lengths
-- Validate UID strings against supported formats
-- Clone UID generator instances
+- **Version-detectable:** The uid can be represent version of item / entity data schema
+- **K-Sortable:** The uid can be K-sortable as it is time-based
+- **Random-Customizable:** The random specification can be customized, by providing a config
+- **Human-Friendly:** Human-friendly writing and reading, as it is represent as [base64url](https://base64.guru/standards/base64url)
 
 ## Quick Links
 
-- [Getting Started](./GettingStarted.md)
+- [Introduction](./intro.md)
+- [Getting Started](./getting-started.md)
 - [API Reference](../api)
-
----
-
-For full documentation and examples, see the [Getting Started](./GettingStarted.md) guide.
+- [Moonwave](https://eryn.io/moonwave/docs/intro)

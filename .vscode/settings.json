@@ -1,19 +1,43 @@
 {
-    // luau-lsp
     "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.markdownlint": "always"
+    },
+
+    // markdownlint
+    "markdownlint.customRules": [
+        "no-hard-tabs",
+    ],
+
+    // prettier
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    
+    // Glassit
+    "glassit.alpha": 240,
+    "glassit.step": 100,
+    "glassit.force_sway": true,
+    
+    // luau-lsp
     "luau-lsp.plugin.enabled": true,
     "luau-lsp.plugin.port": 3667,
     "luau-lsp.completion.imports.enabled": true,
+    "luau-lsp.completion.autocompleteEnd": true,
     "luau-lsp.completion.imports.suggestServices": true,
     "luau-lsp.completion.imports.separateGroupsWithLine": true,
     "luau-lsp.completion.imports.suggestRequires": true,
-    "luau-lsp.plugin.maximumRequestBodySize": 10000000,
     "luau-lsp.completion.imports.ignoreGlobs": [
         "**/_Index/**",
         "node_modules/**",
         "packages/**",
         "roblox-packages/**",
     ],
+    // "luau-lsp.diagnostics.workspace": true,
+    "luau-lsp.hover.showTableKinds": true,
+    "luau-lsp.hover.multilineFunctionDefinitions": true,
+    // "luau-lsp.index.maxFiles": 10000,
+    // "luau-lsp.sourcemap.autogenerate": false,
     "luau-lsp.fflags.override": {
         // "LuauTypeSolverRelease": "650",
         "LuauSolverV2": "true",
@@ -24,28 +48,21 @@
         "LuauNewSolverPopulateTableLocations": "true",
         "LuauNewSolverPrePopulateClasses": "true"
     },
-    "[lua]": {
+    "[lua][luau]": {
         "editor.defaultFormatter": "JohnnyMorganz.stylua"
     },
-    "[luau]": {
-        "editor.defaultFormatter": "JohnnyMorganz.stylua"
-    },
-
-    // Glassit
-    "glassit.alpha": 240,
-    "glassit.step": 100,
-    "glassit.force_sway": true,
 
     // Stylua
     "stylua.targetReleaseVersion": "latest",
+    "stylua.disableVersionCheck": true,
 
     // Bracket Pair Colorization
     "editor.bracketPairColorization.enabled": true,
     "editor.guides.bracketPairsHorizontal": "active",
-    "editor.guides.bracketPairs":"active",
+    "editor.guides.bracketPairs": "active",
 
     // indent-rainbow
     "indentRainbow.includedLanguages": [], // for example ["nim", "nims", "python"]
     "indentRainbow.excludedLanguages": ["plaintext"],
-    "indentRainbow.updateDelay": 100 // 10 makes it super fast but may cost more resources
+    "indentRainbow.updateDelay": 100, // 10 makes it super fast but may cost more resources
 }

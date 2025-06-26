@@ -1,23 +1,28 @@
+# github/workflows
+.github/workflows/ci.yml
+.github/workflows/publish-docs.yml
+.github/workflows/build.yml
+.github/workflows/release-packages.yml
+
 # IDE files
-.vscode/
 .idea/
 .env
 .aider*
 .cursorrules
 .cursor
-.mcp
-_ARCHIVED
-js-to-lua
-moonwavegen
+.cursor/mcp.json
+.windsurfrules
+.roo/rules
+
+# Roblox Studio
+**/StarterGui
+**/ServerScriptService/Backups
 
 # Roblox Studio files
 *.rbxl
 *.rbxlx
 *.rbxm
 *.rbxmx
-
-# Roblox Studio repositories
-StarterGui
 
 # Moonwave build output
 /build
@@ -26,19 +31,40 @@ StarterGui
 /rojo-test.rbxl
 /rojo-test.rbxlx
 
-# Packages directory
-/Packages/
-
-# OS files
+# Misc files
 .DS_Store
 Thumbs.db 
 *.zip
 packages/*/Packages
 node_modules
-/sourcemap.json
+sourcemap.json
 /assets
 /test/Packages
 /test/modules
-package.json
-package-lock.json
-/DevPackages
+_ARCHIVED
+js-to-lua
+moonwavegen
+
+# Added by Claude Task Master
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+# Task files
+tasks.json
+tasks/ 

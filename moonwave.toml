@@ -1,37 +1,45 @@
-title = "UID"
-gitRepoUrl = "https://github.com/6531503070/UID"
+title = "quid"
+gitRepoUrl = "https://github.com/6531503070/quid"
 gitSourceBranch = "main"
 changelog = true
 
 [[classOrder]]
-classes = ["UID"]
+classes = ["quid"]
 
 [docusaurus]
 onBrokenLinks = "throw"
 onBrokenMarkdownLinks = "warn"
-tagline = "An uid generator to represent an uniqueness for Roblox"
-baseUrl = "/UID/"
+tagline = "A suitable uid for representing entity uniqueness. While providing version-detectability, k-sortability and human-readability"
+baseUrl = "/quid/"
 
 [home]
 enabled = true
 includeReadme = false
 
 [[home.features]]
-title = "Flexible"
-description = "Generate UIDs in various encodings and lengths."
+title = "Version-Detectable"
+description = "The uid can be represent version of item / entity data schema"
 
 [[home.features]]
-title = "Developer-Friendly"
-description = "Simple & Easy to use and understand."
+title = "K-Sortable"
+description = "The uid can be K-sortable as it is time-based."
+
+[[home.features]]
+title = "Human-Friendly"
+description = "The uid is represent as base64url."
+
+[[home.features]]
+title = "Random-Customizable"
+description = "The random specification can be customized, by providing a config."
 
 [[footer.links]]
 title = "Links"
 
 [[footer.links.items]]
 label = "GitHub"
-href = "https://github.com/6531503070/UID"
+href = "https://github.com/6531503070/quid"
 
 [[navbar.items]]
-href = "https://wally.run/package/6531503070/uid"
+href = "https://wally.run/package/6531503070/quid"
 label = "Wally"
 position = "right"

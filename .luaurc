@@ -1,19 +1,19 @@
 {
-    "languageMode": "strict",
-    "lint": {
-        "*": true,
-        "MultiLineStatement": false,
-        "LocalShadow": false,
-        "LocalUnused": false
-    },
-    "lintErrors": false,
-    "typeErrors": true,
-    "globals": [
-        "warn"
-    ],
-    "aliases": {
-        "lune": "./types",
-        "tests": "./tests",
-        "require-tests": "./tests/require/tests"
-    }
+	"languageMode": "nonstrict",
+	"lint": {
+		"*": true,
+		"MultiLineStatement": false,
+		"LocalShadow": false,
+		"LocalUnused": false
+	},
+	"lintErrors": false,
+	"typeErrors": true,
+	"globals": [
+		"warn"
+	],
+	"aliases": {
+		"lune": "./types",
+		"tests": "./tests",
+		"require-tests": "./tests/require/tests"
+	}
 }

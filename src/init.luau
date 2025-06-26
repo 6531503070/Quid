@@ -1,415 +1,225 @@
+-- quid
+-- Ratchanon Suwatsiriphol
+
 --!native
 --!optimize 2
 
--- UID
--- Ratchanon Suwatsiriphol
+--[=[
+	@class quid
+	A suitable uid for representing entity uniqueness. While providing version-detectability, k-sortability and human-readability
+]=]
 
-local HttpService = game:GetService("HttpService")
-local GenerateGUID = HttpService.GenerateGUID
-local random = Random.new()
-local NextInteger = random.NextInteger
+-- [Base64url](https://base64.guru/standards/base64url)
+-- [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648)
+
+-- stylua: ignore
+local BASE_64_URL_CHARACTER = {
+	"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+	"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
+	"0","1","2","3","4","5","6","7","8","9", "-", "_"
+}
+
+-- stylua: ignore
+local BASE_64_URL_VALUE_MAP = {} do
+	for i, character in ipairs(BASE_64_URL_CHARACTER) do
+		BASE_64_URL_VALUE_MAP[character] = i - 1
+	end
+end
+
+local MAX_SAFE_INTEGER = 9007199254740991
+local MASK_NORMALIZED_U32 = 4294967295 -- 2^32 - 1
 
 --[=[
-	@class UID
-	An uid generator to represent an uniqueness for Roblox
+	@class Config
+	A configuration object for quid generation
 ]=]
-local UID = {}
-UID.__index = UID
+local DEFAULT_CONFIG = {}
 
---- Creates a new UID generator instance
+--- Version state
 ---
---- @within UID
---- @function new
---- @param seed number? -- Optional seed for the randomizer. Must be in range [-9007199254740991, 9007199254740991].
---- @return UID -- A new UID generator instance.
-function UID.new(seed: number?)
-	return setmetatable({
-		Randomizer = Random.new(seed),
-	}, UID)
-end
+--- @prop version number
+--- @within Config
+DEFAULT_CONFIG.version = game.PlaceVersion
 
---- Supported UID base formats
+--- Fingerprint state
 ---
---- @type UIDBase "Base256ASCII" | "Base94JSONSAFE" | "Base64URL" | "Hex" | "GUID"
---- @within UID
-export type UIDBase = "Base256ASCII" | "Base94JSONSAFE" | "Base64URL" | "Hex" | "GUID"
+--- @prop fingerprint string
+--- @within Config
+DEFAULT_CONFIG.fingerprint = `{game.GameId}:{game.PlaceId}:{game.JobId}`
 
---- Validates a UID against a specified base format
+--- Internal state used for entropy generation
 ---
---- @within UID
---- @function isbase
---- @param uid string -- The UID to validate.
---- @param uidBase UIDBase -- The base format to validate against.
---- @return boolean -- Whether the UID matches the specified base format.
-function UID.isbase(uid: string, uidBase: UIDBase): boolean
-	if uidBase == "Hex" then
-		return string.find(uid, "^[0-9A-Fa-f]+$") ~= nil
-	elseif uidBase == "GUID" then
-		return string.find(
-			uid,
-			"^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$"
-		) ~= nil
-	elseif uidBase == "Base64URL" then
-		return string.find(uid, "^[A-Za-z0-9%-_]+$") ~= nil
-	elseif uidBase == "Base94JSONSAFE" then
-		return string.find(
-			uid,
-			"^[0-9a-zA-Z!#$%%&'()*+,-./:;<=>?@%[%]^_`{|}~" .. string.char(127) .. "]+$"
-		) ~= nil
-	elseif uidBase == "Base256ASCII" then
-		return true -- Since every text character, emoji is based on ASCII at a fundamental level.
-	end
+--- @prop _counter number
+--- @within Config
+--- @private
+DEFAULT_CONFIG._counter = 0
 
-	return false
-end
-
---- Generates a new GUID string
----
---- @within UID
---- @function guid
---- @return string -- A GUID string. Uniqueness is 2^128 possibilities (128-bit).
-function UID.guid()
-	return GenerateGUID(HttpService, false)
-end
-
-type UID = typeof(UID.new())
-
-local STRING_CACHES = table.create(16)
-
---[[
-	@param input {number} -- Array of bytes to build string from
-	@param length number? -- Optional length to limit the string
-	@return string -- Built string from bytes
-]]
-local function stringBuilder(input: { number }, length: number?): string
-	local inputLength = if length then math.min(#input, length) else #input
-
-	for i = 1, inputLength, 7997 do
-		local j = math.min(i + 7996, inputLength)
-		table.insert(STRING_CACHES, string.char(table.unpack(input, i, j)))
-	end
-
-	local blockOfString = table.concat(STRING_CACHES)
-	table.clear(STRING_CACHES)
-
-	return blockOfString
-end
-
-local blockBase256ASCII = table.create(32, 0)
-
---- Generates a new Base256ASCII string
+--- A factory function for produce unix-timestamp in milliseconds as a integer.
 ---
 --- :::tip
---- We recommend using this UIDs for internal script usage and instance attributes.
+--- You can overwrite this, implement your own clock function.
 --- :::
 ---
---- :::danger
---- You may facing UIDs information loss for specific use cases. like datastore, middlewares remote transmission, and more.
---- :::
----
---- @param length number -- The length of the UID. Uniqueness is (256 ^ length) possibilities.
---- @return string -- A random Base256ASCII string.
-function UID:NextBase256ASCII(length: number)
-	local self = self :: UID
-
-	local Randomizer = self.Randomizer or random
-
-	for i = 1, length do
-		blockBase256ASCII[i] = NextInteger(Randomizer, 0, 255)
-	end
-
-	return stringBuilder(blockBase256ASCII, length)
+--- @function clock
+--- @within Config
+--- @return number -- A unix-timestamp in milliseconds as a integer.
+DEFAULT_CONFIG.clock = function()
+	return (workspace:GetServerTimeNow() * 1000) // 1
 end
 
-local blockBase94JSONSAFE = table.create(16)
-local BASE_94_JSONSAFE_CHARACTERS = {
-	"0",
-	"1",
-	"2",
-	"3",
-	"4",
-	"5",
-	"6",
-	"7",
-	"8",
-	"9",
-	"a",
-	"b",
-	"c",
-	"d",
-	"e",
-	"f",
-	"g",
-	"h",
-	"i",
-	"j",
-	"k",
-	"l",
-	"m",
-	"n",
-	"o",
-	"p",
-	"q",
-	"r",
-	"s",
-	"t",
-	"u",
-	"v",
-	"w",
-	"x",
-	"y",
-	"z",
-	"A",
-	"B",
-	"C",
-	"D",
-	"E",
-	"F",
-	"G",
-	"H",
-	"I",
-	"J",
-	"K",
-	"L",
-	"M",
-	"N",
-	"O",
-	"P",
-	"Q",
-	"R",
-	"S",
-	"T",
-	"U",
-	"V",
-	"W",
-	"X",
-	"Y",
-	"Z",
-	"!",
-	"#",
-	"$",
-	"%",
-	"&",
-	"'",
-	"(",
-	")",
-	"*",
-	"+",
-	",",
-	"-",
-	".",
-	"/",
-	":",
-	";",
-	"<",
-	"=",
-	">",
-	"?",
-	"@",
-	"[",
-	"]",
-	"^",
-	"_",
-	"`",
-	"{",
-	"|",
-	"}",
-	"~",
-	string.char(127),
-}
-
---- Generates a new Base94JSONSAFE string
+--- A factory function for produce random number between [0, 1]
 ---
 --- :::tip
---- We recommend this UIDs for datastore related. as if zero-overhead and compact.
+--- You can overwrite this, implement your own entropy function.
 --- :::
 ---
---- @param length number -- The length of the UID. Uniqueness is (94 ^ length) possibilities.
---- @return string -- A random Base94JSONSAFE string.
-function UID:NextBase94JSONSAFE(length: number)
-	local self = self :: UID
+--- @function entropy
+--- @within Config
+--- @param version number
+--- @param timestamp number
+--- @param fingerprint string
+--- @param counter number
+--- @return number -- A random number between [0, 1]
+DEFAULT_CONFIG.entropy = function(version: number, timestamp: number, fingerprint: string, counter: number)
+	-- With math.random (Weak entropy)
+	return math.random()
 
-	local Randomizer = self.Randomizer or random
+	-- -- With sha256 (Strong entropy)
+	-- local sha256 = require(game.ReplicatedStorage.Packages.sha256) :: any -- [sha256](https://github.com/Dekkonot/luau-hashing/tree/main/modules/sha256)
+	-- local _, digest_block = sha256(`{version}-{timestamp}-{fingerprint}-{counter}`)
+	-- local noise_u32 = 0
+	-- for i = 1, #digest_block do
+	-- 	noise_u32 = bit32.bxor(noise_u32, digest_block[i])
+	-- end
+	-- return noise_u32 / MASK_NORMALIZED_U32 -- Normalized noise_u32 to be a number between [0, 1]
+end
 
-	for i = 1, length do
-		local pointer = NextInteger(Randomizer, 1, 93)
-		blockBase94JSONSAFE[i] = BASE_94_JSONSAFE_CHARACTERS[pointer]
+type Config = typeof(DEFAULT_CONFIG)
+
+-- Bucket cache for generating quid improve performance
+-- 4 bytes: Version (Padding: 4)
+-- 8 bytes: Timestamp (Padding: 8)
+-- 12 bytes: Uniqueness (Padding: 12)
+local cache_quid = table.create(4 + 8 + 12)
+
+local function decode(integer_base: string): number
+	local integer = 0
+	local length = #BASE_64_URL_CHARACTER
+	local base = integer_base
+
+	for i = 1, #base do
+		local c = string.sub(base, i, i)
+		local val = BASE_64_URL_VALUE_MAP[c]
+		integer = integer * length + val
 	end
 
-	local blockOfString = table.concat(blockBase94JSONSAFE)
-	table.clear(blockBase94JSONSAFE)
-
-	return blockOfString
+	return integer
 end
 
-local blockBase64URL = table.create(16)
-local BASE_64_URL_CHARACTERS = {
-	"A",
-	"B",
-	"C",
-	"D",
-	"E",
-	"F",
-	"G",
-	"H",
-	"I",
-	"J",
-	"K",
-	"L",
-	"M",
-	"N",
-	"O",
-	"P",
-	"Q",
-	"R",
-	"S",
-	"T",
-	"U",
-	"V",
-	"W",
-	"X",
-	"Y",
-	"Z",
-	"a",
-	"b",
-	"c",
-	"d",
-	"e",
-	"f",
-	"g",
-	"h",
-	"i",
-	"j",
-	"k",
-	"l",
-	"m",
-	"n",
-	"o",
-	"p",
-	"q",
-	"r",
-	"s",
-	"t",
-	"u",
-	"v",
-	"w",
-	"x",
-	"y",
-	"z",
-	"0",
-	"1",
-	"2",
-	"3",
-	"4",
-	"5",
-	"6",
-	"7",
-	"8",
-	"9",
-	"-",
-	"_",
-}
+local function generate(config: Config, version: number?, timestamp: number?)
+	local length = #BASE_64_URL_CHARACTER
+	local version = version or config.version
+	local timestamp = timestamp or config.clock()
 
---- Generates a new Base64URL string
----
---- :::tip
---- We recommend using this UIDs for human-friendly writing. like coupon/redeem codes, short urls, and more.
---- :::
----
---- @param length number -- The length of the UID. Uniqueness is (64 ^ length) possibilities.
---- @return string -- A random Base64URL string.
-function UID:NextBase64URL(length: number)
-	local self = self :: UID
-	local Randomizer = self.Randomizer or random
-
-	for i = 1, length do
-		local pointer = NextInteger(Randomizer, 1, 64)
-		blockBase64URL[i] = BASE_64_URL_CHARACTERS[pointer]
+	-- Version (Padding: 4)
+	local version_state = version
+	for i = 4, 1, -1 do
+		local remainder = (version_state % length) // 1
+		version_state = version_state // length
+		cache_quid[i] = BASE_64_URL_CHARACTER[remainder + 1]
 	end
 
-	local blockOfString = table.concat(blockBase64URL)
-	table.clear(blockBase64URL)
-
-	return blockOfString
-end
-
-local blockOf16C15 = table.create(16)
-local min16C15, max16C15 = 16 ^ (15 - 1) - 1, 16 ^ 15 - 1
-
---[[
-	@param Randomizer Random -- The randomizer instance
-	@param length number -- The length of the hex string to generate
-	@return {number} -- Array of processed hex blocks
-]]
-local function process16C15(Randomizer: Random, length: number): { number }
-	local iteration = length // 15
-
-	table.clear(blockOf16C15)
-
-	for i = 1, iteration do
-		blockOf16C15[i] = NextInteger(Randomizer, min16C15, max16C15)
+	-- Timestamp (Padding: 8)
+	local timestamp_state = timestamp
+	for i = 12, 5, -1 do
+		local remainder = (timestamp_state % length) // 1
+		timestamp_state = timestamp_state // length
+		cache_quid[i] = BASE_64_URL_CHARACTER[remainder + 1]
 	end
 
-	local remainder = length % 15
-
-	if remainder > 0 then
-		blockOf16C15[iteration + 1] =
-			NextInteger(Randomizer, 16 ^ (remainder - 1) - 1, 16 ^ remainder - 1)
+	-- Uniqueness (Padding: 12)
+	config._counter %= MAX_SAFE_INTEGER
+	for i = 24, 13, -1 do
+		-- pointer: [0, #BASE_64_URL_CHARACTER]
+		local pointer = (
+			#BASE_64_URL_CHARACTER
+			* config.entropy(config.version, timestamp, config.fingerprint, config._counter) -- noise: [0, 1]
+			// 1
+		) + 1
+		cache_quid[i] = BASE_64_URL_CHARACTER[pointer]
 	end
 
-	return blockOf16C15
+	local quid = table.concat(cache_quid)
+	table.clear(cache_quid)
+	config._counter += 1
+
+	return quid
 end
 
---[[
-	@param input {number} -- Array of processed hex blocks
-	@return string -- Built hex string
-]]
-local function stringBuilderHexBlock16C15(input: { number }): string
-	local inputLength = #input
+local quid = { config = DEFAULT_CONFIG }
+quid.__index = quid
 
-	for i = 1, inputLength, 7997 do
-		local j = math.min(i + 7996, inputLength)
-		local alloc = (j - i) + 1
-
-		table.insert(
-			STRING_CACHES,
-			string.format(string.rep([[%x]], alloc), table.unpack(input, i, j))
-		)
-	end
-
-	local blockOfString = table.concat(STRING_CACHES)
-	table.clear(STRING_CACHES)
-
-	return blockOfString
-end
-
---- Generates a new Hex string
+--- Generate a new quid with global config state
 ---
---- :::note
---- We recommend using this UIDs for general usage. but you may consider using other UIDs for specific use cases.
---- and better compactness.
---- :::
----
---- @param length number -- The length of the UID. Uniqueness is (16 ^ length) possibilities.
---- @return string -- A random Hex string.
-function UID:NextHex(length: number)
-	local self = self :: UID
-	local Randomizer = self.Randomizer or random
-	local blockOf16C13 = process16C15(Randomizer, length)
-
-	return stringBuilderHexBlock16C15(blockOf16C13)
+--- @within quid
+--- @param version number?
+--- @param timestamp number?
+--- @return string -- quid
+function quid.next(version: number?, timestamp: number?)
+	return generate(DEFAULT_CONFIG, version, timestamp)
 end
 
---- Clones the UID object
+--- Parse a quid string into its components
 ---
---- @return UID -- A new UID object with the same state as the original.
-function UID:Clone()
-	local self = self :: UID
-	local newUIDObject = table.clone(self)
-	newUIDObject.Randomizer = typeof(self.Randomizer) == "Random" and self.Randomizer:Clone()
-		or nil
+--- @within quid
+--- @param quid string
+--- @return number -- version
+--- @return number -- timestamp
+--- @return number -- uniqueness
+function quid.parse(quid: string)
+	local version = string.sub(quid, 1, 4)
+	local timestamp = string.sub(quid, 5, 12)
+	local uniqueness = string.sub(quid, 13, 28)
 
-	return setmetatable(newUIDObject, UID)
+	-- stylua: ignore
+	return
+		decode(version), 
+		decode(timestamp),
+		decode(uniqueness)
 end
 
-return UID
+--- Check if x is a valid quid
+---
+--- @within quid
+--- @param x any | string?
+--- @return boolean
+function quid.is(x: any | string?): boolean
+	-- stylua: ignore
+	return 
+		type(x) == "string" and 
+		string.find(x, "^[A-Za-z0-9%-_]+$") ~= nil and
+		#x == 28
+end
+
+--- Create a new quid instance with custom config state
+---
+--- @within quid
+--- @param config_state Config?
+--- @return quid
+function quid.new(config_state: Config?)
+	local self = setmetatable({}, quid)
+	self.config = config_state or DEFAULT_CONFIG
+	return self
+end
+
+--- Generate a new quid with local config state
+---
+--- @within quid
+--- @param version number?
+--- @param timestamp number?
+--- @return string -- quid
+function quid:Next(version: number?, timestamp: number?)
+	return generate(self.config, version, timestamp)
+end
+
+return quid
