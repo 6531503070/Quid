@@ -8,13 +8,9 @@
 </p>
 
 <div align="center">
-  <a href="https://wally.run/package/6531503070/quid">
-    <img alt="Wally" src="https://img.shields.io/badge/Wally-Package-orange?style=for-the-badge">
-  </a>
-  <a href="https://github.com/6531503070/quid/releases">
-    <img alt="Releases" src="https://img.shields.io/github/v/release/6531503070/quid?style=for-the-badge">
-  </a>
-</div>
+
+[![Wally](https://img.shields.io/badge/Wally-Package-orange?style=for-the-badge)](https://wally.run/package/6531503070/quid)
+[![Releases](https://img.shields.io/github/v/release/6531503070/quid?style=for-the-badge)](https://github.com/6531503070/quid/releases)
 
 </div>
 
