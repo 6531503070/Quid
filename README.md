@@ -10,19 +10,18 @@
 <div align="center">
 
 [![Wally](https://img.shields.io/badge/Wally-Package-orange?style=for-the-badge)](https://wally.run/package/6531503070/quid)
+[![Releases](https://img.shields.io/github/v/release/6531503070/quid?style=for-the-badge)](https://github.com/6531503070/quid/releases)
 
 </div>
 
 quid is a library for generating unique identifiers for entities. It is designed to be easy to use and understand, while providing a high level of security and performance.
 
-## Find the installation
+## Features
 
-- Roblox Store (Soon)
-- [GitHub](https://github.com/6531503070/quid/releases)
-
-## Find the documentation
-
-- [Documentation](https://6531503070.github.io/quid/)
+- **Version-detectable:** The uid can be represent version of item / entity data schema
+- **K-Sortable:** The uid can be K-sortable as it is time-based
+- **Random-Customizable:** The random specification can be customized, by providing a config
+- **Human-Friendly:** Human-friendly writing and reading, as it is represent as [base64url](https://base64.guru/standards/base64url)
 
 ## Star History
 
