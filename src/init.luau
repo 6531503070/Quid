@@ -86,7 +86,7 @@ end
 --- @return number -- A random number between [0, 1]
 DEFAULT_CONFIG.entropy = function(version: number, timestamp: number, fingerprint: string, counter: number)
 	-- Implement randomness with using `math.random` (Weak entropy)
-	return bit32.bxor(math.random() * MASK_NORMALIZED_U32, counter)
+	return bit32.bxor(math.random() * MASK_NORMALIZED_U32, counter) / MASK_NORMALIZED_U32
 end
 
 export type Config = typeof(DEFAULT_CONFIG)
