@@ -1,5 +1,5 @@
 local Quid = require(game.ReplicatedStorage.Packages.Quid)
-local sha256 = require(game.ReplicatedStorage.Packages.sha256) -- [sha256](https://github.com/Dekkonot/luau-hashing/tree/main/modules/sha256)
+local sha256 = require(game.ReplicatedStorage.DevPackages.sha256) -- [sha256](https://github.com/Dekkonot/luau-hashing/tree/main/modules/sha256)
 
 local sample = "APRAZev9-wyo_9z3vP-8V7nRfI"
 assert(Quid.is(sample) == true, "Quid.is(sample), sample is a valid quid, base64url and 28 characters")

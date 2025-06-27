@@ -16,5 +16,5 @@ include = [
     "LICENSE.md",
 ]
 
-[dependencies]
+[dev-dependencies]
 sha256 = "dekkonot/sha256@1.0.1"
