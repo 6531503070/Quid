@@ -11,7 +11,7 @@ Quid is a library for generating unique identifiers for entities. It is designed
 Add Quid to your `wally.toml`:
 
 ```toml
-Quid = "6531503070/quid@1.0.0"
+Quid = "6531503070/quid@1.0.1"
 ```
 
 :::tip
