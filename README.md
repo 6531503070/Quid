@@ -37,7 +37,7 @@
 </p>
 
 <p align="center">
-  Copyright &copy; 2021-present <a href="https://github.com/6531503070" target="_blank">Ratchanon Suwatsiriphol</a>
+  Copyright &copy; 2025-present <a href="https://github.com/6531503070" target="_blank">Ratchanon Suwatsiriphol</a>
 </p>
 
 <p align="center">
