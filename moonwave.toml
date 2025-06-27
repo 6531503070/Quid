@@ -40,6 +40,6 @@ label = "GitHub"
 href = "https://github.com/6531503070/Quid"
 
 [[navbar.items]]
-href = "https://wally.run/package/6531503070/Quid"
+href = "https://wally.run/package/6531503070/quid"
 label = "Wally"
 position = "right"
