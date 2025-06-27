@@ -7,25 +7,6 @@
 --[=[
 	@class Quid
 	A suitable uid for representing entity uniqueness. While providing version-detectability, k-sortability and human-readability
-
-	```
-	# Tasest
-	Quid's data-structure:
-		"vvvttttttttUUUUUUUUUUUUUUU"
-
-		Total characters (length): 26
-		Total bits: 156
-
-		`vvv`: Version
-			- (Padding: 3 characters)
-			- 18 bits, can hold up to 262,143 different versions
-		`ttttttttt`: Timestamp
-			- (Padding: 8 characters)
-			- 48 bits, can hold up to ~8,919 years
-		`UUUUUUUUUUUUUUUU`: Uniqueness
-			- (Padding: 15 characters)
-			- 90 bits, can hold up to 1.23794004e27 uniqueness
-	```
 ]=]
 
 -- [Base64url](https://base64.guru/standards/base64url)
@@ -176,7 +157,7 @@ Quid.__index = Quid
 --- @within Quid
 --- @param version number?
 --- @param timestamp number?
---- @return string -- quid
+--- @return string -- [quid](../docs/intro#-quids-data-structure)
 function Quid.next(version: number?, timestamp: number?)
 	return generate(DEFAULT_CONFIG, version, timestamp)
 end
@@ -185,9 +166,9 @@ end
 ---
 --- @within Quid
 --- @param quid string
---- @return number -- version
---- @return number -- timestamp
---- @return number -- uniqueness
+--- @return number -- Version
+--- @return number -- Timestamp
+--- @return number -- Uniqueness
 function Quid.parse(quid: string)
 	local version = string.sub(quid, 1, 3)
 	local timestamp = string.sub(quid, 4, 11)
@@ -200,7 +181,7 @@ function Quid.parse(quid: string)
 		decode(uniqueness)
 end
 
---- Check if x is a valid quid
+--- Check if x is a valid [quid](../docs/intro#-quids-data-structure)
 ---
 --- @within Quid
 --- @param x any | string?
@@ -213,13 +194,13 @@ function Quid.is(x: any | string?): boolean
 		#x == 26
 end
 
---- Apply a version to the global config
+--- Update a version of [quid](../docs/intro#-quids-data-structure)
 ---
 --- @error "Invalid quid" -- quid is a base64url string and must be 28 characters
 --- @within Quid
 --- @param quid string
 --- @param target_version number? -- If nil: increment +1 (Can be decrease or increase)
---- @return string -- Updated quid
+--- @return string -- Updated [quid](../docs/intro#-quids-data-structure)
 --- @return number? -- Target version (If nil: not updated)
 function Quid.update(quid: string, target_version: number?)
 	if not Quid.is(quid) then error("Invalid quid") end
@@ -269,7 +250,7 @@ export type Quid = typeof(Quid)
 --- @within Quid
 --- @param version number?
 --- @param timestamp number?
---- @return string -- quid
+--- @return string -- [quid](../docs/intro#-quids-data-structure)
 function Quid:Next(version: number?, timestamp: number?)
 	local self = self :: Quid
 	return generate(self.config, version, timestamp)
