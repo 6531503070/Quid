@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[399],{4410:s=>{s.exports=JSON.parse('{"sourceUrl":"https://github.com/6531503070/quid/blob/main","baseUrl":"/quid/","classOrder":[{"classes":["quid"]}],"apiCategories":[]}')}}]);
