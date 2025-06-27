@@ -207,7 +207,7 @@ end
 --- @error "Invalid quid"
 --- @within Quid
 --- @param quid string
---- @param version number? -- If nil: increment +1 (Can be decrease or increase)
+--- @param target_version number? -- If nil: increment +1 (Can be decrease or increase)
 --- @return string -- Updated quid
 --- @return number? -- Target version (If nil: not updated)
 function Quid.update(quid: string, target_version: number?)
