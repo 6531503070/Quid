@@ -1,11 +1,11 @@
--- quid
+-- Quid
 -- Ratchanon Suwatsiriphol
 
 --!native
 --!optimize 2
 
 --[=[
-	@class quid
+	@class Quid
 	A suitable uid for representing entity uniqueness. While providing version-detectability, k-sortability and human-readability
 ]=]
 
@@ -26,8 +26,8 @@ local BASE_64_URL_VALUE_MAP = {} do
 	end
 end
 
+local BASE_LENGTH = #BASE_64_URL_CHARACTER
 local MAX_SAFE_INTEGER = 9007199254740991
-local MASK_NORMALIZED_U32 = 4294967295 -- 2^32 - 1
 
 --[=[
 	@class Config
@@ -94,52 +94,53 @@ DEFAULT_CONFIG.entropy = function(version: number, timestamp: number, fingerprin
 	-- return noise_u32 / MASK_NORMALIZED_U32 -- Normalized noise_u32 to be a number between [0, 1]
 end
 
-type Config = typeof(DEFAULT_CONFIG)
+export type Config = typeof(DEFAULT_CONFIG)
 
 -- Bucket cache for generating quid improve performance
--- 4 bytes: Version (Padding: 4)
--- 8 bytes: Timestamp (Padding: 8)
--- 12 bytes: Uniqueness (Padding: 12)
+-- 4 bytes: Version (Padding: 4) (28 bits)
+-- 8 bytes: Timestamp (Padding: 8) (54 bits)
+-- 12 bytes: Uniqueness (Padding: 12) (62 bits)
 local cache_quid = table.create(4 + 8 + 12)
 
 local function decode(integer_base: string): number
 	local integer = 0
-	local length = #BASE_64_URL_CHARACTER
 	local base = integer_base
 
 	for i = 1, #base do
 		local c = string.sub(base, i, i)
 		local val = BASE_64_URL_VALUE_MAP[c]
-		integer = integer * length + val
+		integer = integer * BASE_LENGTH + val
 	end
 
 	return integer
 end
 
 local function generate(config: Config, version: number?, timestamp: number?)
-	local length = #BASE_64_URL_CHARACTER
 	local version = version or config.version
 	local timestamp = timestamp or config.clock()
+
+	version %= BASE_LENGTH ^ 4
+	timestamp %= BASE_LENGTH ^ 8
 
 	-- Version (Padding: 4)
 	local version_state = version
 	for i = 4, 1, -1 do
-		local remainder = (version_state % length) // 1
-		version_state = version_state // length
+		local remainder = (version_state % BASE_LENGTH) // 1
+		version_state = version_state // BASE_LENGTH
 		cache_quid[i] = BASE_64_URL_CHARACTER[remainder + 1]
 	end
 
 	-- Timestamp (Padding: 8)
 	local timestamp_state = timestamp
 	for i = 12, 5, -1 do
-		local remainder = (timestamp_state % length) // 1
-		timestamp_state = timestamp_state // length
+		local remainder = (timestamp_state % BASE_LENGTH) // 1
+		timestamp_state = timestamp_state // BASE_LENGTH
 		cache_quid[i] = BASE_64_URL_CHARACTER[remainder + 1]
 	end
 
 	-- Uniqueness (Padding: 12)
 	config._counter %= MAX_SAFE_INTEGER
-	for i = 24, 13, -1 do
+	for i = 28, 13, -1 do
 		-- pointer: [0, #BASE_64_URL_CHARACTER]
 		local pointer = (
 			#BASE_64_URL_CHARACTER
@@ -156,27 +157,27 @@ local function generate(config: Config, version: number?, timestamp: number?)
 	return quid
 end
 
-local quid = { config = DEFAULT_CONFIG }
-quid.__index = quid
+local Quid = { config = DEFAULT_CONFIG }
+Quid.__index = Quid
 
 --- Generate a new quid with global config state
 ---
---- @within quid
+--- @within Quid
 --- @param version number?
 --- @param timestamp number?
 --- @return string -- quid
-function quid.next(version: number?, timestamp: number?)
+function Quid.next(version: number?, timestamp: number?)
 	return generate(DEFAULT_CONFIG, version, timestamp)
 end
 
 --- Parse a quid string into its components
 ---
---- @within quid
+--- @within Quid
 --- @param quid string
 --- @return number -- version
 --- @return number -- timestamp
 --- @return number -- uniqueness
-function quid.parse(quid: string)
+function Quid.parse(quid: string)
 	local version = string.sub(quid, 1, 4)
 	local timestamp = string.sub(quid, 5, 12)
 	local uniqueness = string.sub(quid, 13, 28)
@@ -190,10 +191,10 @@ end
 
 --- Check if x is a valid quid
 ---
---- @within quid
+--- @within Quid
 --- @param x any | string?
 --- @return boolean
-function quid.is(x: any | string?): boolean
+function Quid.is(x: any | string?): boolean
 	-- stylua: ignore
 	return 
 		type(x) == "string" and 
@@ -201,25 +202,66 @@ function quid.is(x: any | string?): boolean
 		#x == 28
 end
 
---- Create a new quid instance with custom config state
+--- Apply a version to the global config
 ---
---- @within quid
---- @param config_state Config?
---- @return quid
-function quid.new(config_state: Config?)
-	local self = setmetatable({}, quid)
-	self.config = config_state or DEFAULT_CONFIG
+--- @error "Invalid quid"
+--- @within Quid
+--- @param quid string
+--- @param version number? -- If nil: increment +1 (Can be decrease or increase)
+--- @return string -- Updated quid
+--- @return number? -- Target version (If nil: not updated)
+function Quid.update(quid: string, target_version: number?)
+	if not Quid.is(quid) then error("Invalid quid") end
+
+	local current_version = decode(string.sub(quid, 1, 4))
+	local component = string.sub(quid, 5)
+	local new_version = target_version or current_version + 1
+	new_version %= BASE_LENGTH ^ 4
+
+	-- Version (Padding: 4)
+	local bucket = table.create(4)
+	local version_state = new_version
+	for i = 4, 1, -1 do
+		local remainder = (version_state % BASE_LENGTH) // 1
+		version_state = version_state // BASE_LENGTH
+		bucket[i] = BASE_64_URL_CHARACTER[remainder + 1]
+	end
+
+	local updated_quid = table.concat(bucket) .. component
+	local result_version = new_version ~= current_version and new_version or nil
+
+	-- stylua: ignore
+	return 
+		updated_quid,
+		result_version
+end
+
+--- Create a new quid object with custom config state
+---
+--- @within Quid
+--- @param config Config?
+--- @return Quid<Config> -- Quid object
+function Quid.new(config: Config?)
+	local self = setmetatable({}, Quid)
+	self.config = config or DEFAULT_CONFIG
+	self.config._counter = MAX_SAFE_INTEGER
+		* self.config.entropy(self.config.version, self.config.clock(), self.config.fingerprint, self.config._counter)
+		// 1
+
 	return self
 end
 
+export type Quid = typeof(Quid)
+
 --- Generate a new quid with local config state
 ---
---- @within quid
+--- @within Quid
 --- @param version number?
 --- @param timestamp number?
 --- @return string -- quid
-function quid:Next(version: number?, timestamp: number?)
+function Quid:Next(version: number?, timestamp: number?)
+	local self = self :: Quid
 	return generate(self.config, version, timestamp)
 end
 
-return quid
+return Quid

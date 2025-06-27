@@ -4,11 +4,6 @@
         "source.fixAll.markdownlint": "always"
     },
 
-    // markdownlint
-    "markdownlint.customRules": [
-        "no-hard-tabs",
-    ],
-
     // prettier
     "[json]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"

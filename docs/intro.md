@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Introduction
 
-quid is an unique identifier inspired by [ULID](https://github.com/ulid/spec) and [cuid2](https://github.com/paralleldrive/cuid2)
+Quid is an unique identifier inspired by [ULID](https://github.com/ulid/spec) and [cuid2](https://github.com/paralleldrive/cuid2)
 
 ## Features
 

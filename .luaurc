@@ -10,10 +10,5 @@
 	"typeErrors": true,
 	"globals": [
 		"warn"
-	],
-	"aliases": {
-		"lune": "./types",
-		"tests": "./tests",
-		"require-tests": "./tests/require/tests"
-	}
+	]
 }

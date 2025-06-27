@@ -1,20 +1,17 @@
 <p align="center">
-  <h1 align="center">quid</h1>
+  <h1 align="center">Quid</h1>
   <p align="center">
     A suitable uid for representing entity uniqueness. While providing version-detectability, k-sortability and human-readability
     <br />
     <a href="https://6531503070.github.io/quid/"><strong>Documentation »</strong></a>
   </p>
+  <div align="center">
+
+  [![Wally](https://img.shields.io/badge/Wally-Package-orange?style=for-the-badge)](https://wally.run/package/6531503070/quid)
+  [![Releases](https://img.shields.io/github/v/release/6531503070/quid?style=for-the-badge)](https://github.com/6531503070/quid/releases)
+
+  </div>
 </p>
-
-<div align="center">
-
-[![Wally](https://img.shields.io/badge/Wally-Package-orange?style=for-the-badge)](https://wally.run/package/6531503070/quid)
-[![Releases](https://img.shields.io/github/v/release/6531503070/quid?style=for-the-badge)](https://github.com/6531503070/quid/releases)
-
-</div>
-
-quid is a library for generating unique identifiers for entities. It is designed to be easy to use and understand, while providing a high level of security and performance.
 
 ## Features
 
@@ -36,13 +33,13 @@ quid is a library for generating unique identifiers for entities. It is designed
 </p>
 
 <p align="center">
-	<img src="https://raw.githubusercontent.com/6531503070/quid/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" />
+  <img src="https://raw.githubusercontent.com/6531503070/quid/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" />
 </p>
 
 <p align="center">
-	Copyright &copy; 2021-present <a href="https://github.com/6531503070" target="_blank">Ratchanon Suwatsiriphol</a>
+  Copyright &copy; 2021-present <a href="https://github.com/6531503070" target="_blank">Ratchanon Suwatsiriphol</a>
 </p>
 
 <p align="center">
-	<a href="https://github.com/6531503070/quid/blob/main/LICENSE"><img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=MIT&logoColor=d9e0ee&colorA=363a4f&colorB=b7bdf8"/></a>
+ <a href="https://github.com/6531503070/quid/blob/main/LICENSE"><img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=MIT&logoColor=d9e0ee&colorA=363a4f&colorB=b7bdf8"/></a>
 </p>
