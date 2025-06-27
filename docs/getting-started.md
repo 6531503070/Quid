@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Getting Started
 
-UID is a unique identifier (UID) generator for Roblox, supporting multiple formats and high-performance randomization. This guide will help you install, set up, and use UID in your Roblox projects.
+quid is a library for generating unique identifiers for entities. It is designed to be easy to use and understand, while providing a high level of security and performance.
 
 ## Installation
 

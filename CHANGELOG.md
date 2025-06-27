@@ -1,4 +1,4 @@
-# UID Changelog
+# quid Changelog
 
 ## 0.1.0
 
