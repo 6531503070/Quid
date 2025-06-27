@@ -23,7 +23,7 @@ local quid_object = Quid.new({
 
 	-- NOTE: It can be impure function
 	entropy = function(version: number, timestamp: number, fingerprint: string, counter: number)
-		-- Implement randomness with using sha256 algorithm (Strong Entropy)
+		-- Implement randomness with using `sha256` algorithm (Strong Entropy)
 		local _, digest_block = sha256(`{version}-{timestamp}-{fingerprint}-{counter}`)
 		local noise_u32 = 0
 		for i = 1, #digest_block do

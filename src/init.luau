@@ -28,6 +28,7 @@ end
 
 local BASE_LENGTH = #BASE_64_URL_CHARACTER
 local MAX_SAFE_INTEGER = 9007199254740991
+local MASK_NORMALIZED_U32 = 4294967295 -- 2^32 - 1
 
 --[=[
 	@class Config
@@ -35,20 +36,23 @@ local MAX_SAFE_INTEGER = 9007199254740991
 ]=]
 local DEFAULT_CONFIG = {}
 
---- Version state
+--- :::tip
+--- It's can be used as a number for comparing version and then apply to item / entity schema or data-transformation.
+--- :::
 ---
 --- @prop version number
 --- @within Config
 DEFAULT_CONFIG.version = game.PlaceVersion
 
---- Fingerprint state
+--- :::tip
+--- It's can be represent as a `machine-id`, `place-id`, `job-id`, etc. for better randomness.
+--- But it depends on your entropy factory function too.
+--- :::
 ---
 --- @prop fingerprint string
 --- @within Config
 DEFAULT_CONFIG.fingerprint = `{game.GameId}:{game.PlaceId}:{game.JobId}`
 
---- Internal state used for entropy generation
----
 --- @prop _counter number
 --- @within Config
 --- @private
@@ -57,7 +61,7 @@ DEFAULT_CONFIG._counter = 0
 --- A factory function for produce unix-timestamp in milliseconds as a integer.
 ---
 --- :::tip
---- You can overwrite this, implement your own clock function.
+--- You can `overwrite` this, and implement your own clock function.
 --- :::
 ---
 --- @function clock
@@ -70,7 +74,7 @@ end
 --- A factory function for produce random number between [0, 1]
 ---
 --- :::tip
---- You can overwrite this, implement your own entropy function.
+--- You can `overwrite` this, and implement your own entropy function.
 --- :::
 ---
 --- @function entropy
@@ -81,17 +85,8 @@ end
 --- @param counter number
 --- @return number -- A random number between [0, 1]
 DEFAULT_CONFIG.entropy = function(version: number, timestamp: number, fingerprint: string, counter: number)
-	-- With math.random (Weak entropy)
-	return math.random()
-
-	-- -- With sha256 (Strong entropy)
-	-- local sha256 = require(game.ReplicatedStorage.Packages.sha256) :: any -- [sha256](https://github.com/Dekkonot/luau-hashing/tree/main/modules/sha256)
-	-- local _, digest_block = sha256(`{version}-{timestamp}-{fingerprint}-{counter}`)
-	-- local noise_u32 = 0
-	-- for i = 1, #digest_block do
-	-- 	noise_u32 = bit32.bxor(noise_u32, digest_block[i])
-	-- end
-	-- return noise_u32 / MASK_NORMALIZED_U32 -- Normalized noise_u32 to be a number between [0, 1]
+	-- Implement randomness with using `math.random` (Weak entropy)
+	return bit32.bxor(math.random() * MASK_NORMALIZED_U32, counter)
 end
 
 export type Config = typeof(DEFAULT_CONFIG)
