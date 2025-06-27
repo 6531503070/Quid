@@ -7,6 +7,25 @@
 --[=[
 	@class Quid
 	A suitable uid for representing entity uniqueness. While providing version-detectability, k-sortability and human-readability
+
+	```
+	# Tasest
+	Quid's data-structure:
+		"vvvttttttttUUUUUUUUUUUUUUU"
+
+		Total characters (length): 26
+		Total bits: 156
+
+		`vvv`: Version
+			- (Padding: 3 characters)
+			- 18 bits, can hold up to 262,143 different versions
+		`ttttttttt`: Timestamp
+			- (Padding: 8 characters)
+			- 48 bits, can hold up to ~8,919 years
+		`UUUUUUUUUUUUUUUU`: Uniqueness
+			- (Padding: 15 characters)
+			- 90 bits, can hold up to 1.23794004e27 uniqueness
+	```
 ]=]
 
 -- [Base64url](https://base64.guru/standards/base64url)
@@ -92,10 +111,7 @@ end
 export type Config = typeof(DEFAULT_CONFIG)
 
 -- Bucket cache for generating quid improve performance
--- 4 bytes: Version (Padding: 4) (28 bits)
--- 8 bytes: Timestamp (Padding: 8) (54 bits)
--- 12 bytes: Uniqueness (Padding: 12) (62 bits)
-local cache_quid = table.create(4 + 8 + 12)
+local cache_quid = table.create(3 + 8 + 15)
 
 local function decode(integer_base: string): number
 	local integer = 0
@@ -114,12 +130,12 @@ local function generate(config: Config, version: number?, timestamp: number?)
 	local version = version or config.version
 	local timestamp = timestamp or config.clock()
 
-	version %= BASE_LENGTH ^ 4
+	version %= BASE_LENGTH ^ 3
 	timestamp %= BASE_LENGTH ^ 8
 
 	-- Version (Padding: 4)
 	local version_state = version
-	for i = 4, 1, -1 do
+	for i = 3, 1, -1 do
 		local remainder = (version_state % BASE_LENGTH) // 1
 		version_state = version_state // BASE_LENGTH
 		cache_quid[i] = BASE_64_URL_CHARACTER[remainder + 1]
@@ -127,7 +143,7 @@ local function generate(config: Config, version: number?, timestamp: number?)
 
 	-- Timestamp (Padding: 8)
 	local timestamp_state = timestamp
-	for i = 12, 5, -1 do
+	for i = 11, 4, -1 do
 		local remainder = (timestamp_state % BASE_LENGTH) // 1
 		timestamp_state = timestamp_state // BASE_LENGTH
 		cache_quid[i] = BASE_64_URL_CHARACTER[remainder + 1]
@@ -135,7 +151,7 @@ local function generate(config: Config, version: number?, timestamp: number?)
 
 	-- Uniqueness (Padding: 12)
 	config._counter %= MAX_SAFE_INTEGER
-	for i = 28, 13, -1 do
+	for i = 26, 12, -1 do
 		-- pointer: [0, #BASE_64_URL_CHARACTER]
 		local pointer = (
 			#BASE_64_URL_CHARACTER
@@ -173,9 +189,9 @@ end
 --- @return number -- timestamp
 --- @return number -- uniqueness
 function Quid.parse(quid: string)
-	local version = string.sub(quid, 1, 4)
-	local timestamp = string.sub(quid, 5, 12)
-	local uniqueness = string.sub(quid, 13, 28)
+	local version = string.sub(quid, 1, 3)
+	local timestamp = string.sub(quid, 4, 11)
+	local uniqueness = string.sub(quid, 12, 26)
 
 	-- stylua: ignore
 	return
@@ -194,7 +210,7 @@ function Quid.is(x: any | string?): boolean
 	return 
 		type(x) == "string" and 
 		string.find(x, "^[A-Za-z0-9%-_]+$") ~= nil and
-		#x == 28
+		#x == 26
 end
 
 --- Apply a version to the global config
@@ -208,15 +224,15 @@ end
 function Quid.update(quid: string, target_version: number?)
 	if not Quid.is(quid) then error("Invalid quid") end
 
-	local current_version = decode(string.sub(quid, 1, 4))
-	local component = string.sub(quid, 5)
+	local current_version = decode(string.sub(quid, 1, 3))
+	local component = string.sub(quid, 4)
 	local new_version = target_version or current_version + 1
-	new_version %= BASE_LENGTH ^ 4
+	new_version %= BASE_LENGTH ^ 3
 
 	-- Version (Padding: 4)
-	local bucket = table.create(4)
+	local bucket = table.create(3)
 	local version_state = new_version
-	for i = 4, 1, -1 do
+	for i = 3, 1, -1 do
 		local remainder = (version_state % BASE_LENGTH) // 1
 		version_state = version_state // BASE_LENGTH
 		bucket[i] = BASE_64_URL_CHARACTER[remainder + 1]

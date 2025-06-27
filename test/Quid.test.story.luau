@@ -1,12 +1,12 @@
 local Quid = require(game.ReplicatedStorage.Packages.Quid)
 local sha256 = require(game.ReplicatedStorage.Packages.sha256) -- [sha256](https://github.com/Dekkonot/luau-hashing/tree/main/modules/sha256)
 
-local sample = "AAPRAZevi03RU3c8oVW2ScKSK-Uh"
+local sample = "APRAZev9-wyo_9z3vP-8V7nRfI"
 assert(Quid.is(sample) == true, "Quid.is(sample), sample is a valid quid, base64url and 28 characters")
 
 local version, timestamp, uniqueness = Quid.parse(sample)
 assert(version == 977, "Version of sample quid does not match (should be 977)")
-assert(timestamp == 1750996831697, "Timestamp of sample quid does not match (should be 1750996831697)")
+assert(timestamp == 1751003950130, "Timestamp of sample quid does not match (should be 1751003950130)")
 
 local MASK_NORMALIZED_U32 = 4294967295 -- 2^32 - 1
 local get_server_time_now = workspace.GetServerTimeNow
@@ -23,7 +23,7 @@ local quid_object = Quid.new({
 
 	-- NOTE: It can be impure function
 	entropy = function(version: number, timestamp: number, fingerprint: string, counter: number)
-		-- Implement randomness with using `sha256` algorithm (Strong Entropy)
+		-- Implement randomness with using sha256 algorithm (Strong Entropy)
 		local _, digest_block = sha256(`{version}-{timestamp}-{fingerprint}-{counter}`)
 		local noise_u32 = 0
 		for i = 1, #digest_block do
