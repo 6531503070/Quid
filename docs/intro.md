@@ -28,11 +28,11 @@ flowchart LR
     A["vvv<br/>Version<br/>3 chars<br/>18 bits"] --> B["tttttttt<br/>Timestamp<br/>8 chars<br/>48 bits"] --> C["UUUUUUUUUUUUUUU<br/>Uniqueness<br/>15 chars<br/>90 bits"]
 ```
 
-| Section         | Characters | Bits | Description                                      |
-|----------------|-------|------|--------------------------------------------------|
-| <strong>vvv</strong>         | 3     | 18   | Version (up to 262,143 versions)                |
-| <strong>tttttttt</strong>    | 8     | 48   | Timestamp (up to ~8,919 years)                  |
-| <strong>UUUUUUUUUUUUUUU</strong> | 15    | 90   | Uniqueness (up to 1.2e27 unique values)         |
+| Section                          | Characters | Bits | Description                             |
+|----------------------------------|:----------:|:----:|-----------------------------------------|
+| <strong>vvv</strong>             |     3      |  18  | Version (up to 262,143 versions)        |
+| <strong>tttttttt</strong>        |     8      |  48  | Timestamp (up to ~8,919 years)          |
+| <strong>UUUUUUUUUUUUUUU</strong> |     15     |  90  | Uniqueness (up to 1.2e27 unique values) |
 
 ## Quick Links
 
