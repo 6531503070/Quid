@@ -204,7 +204,7 @@ end
 
 --- Apply a version to the global config
 ---
---- @error "Invalid quid"
+--- @error "Invalid quid" -- quid is a base64url string and must be 28 characters
 --- @within Quid
 --- @param quid string
 --- @param target_version number? -- If nil: increment +1 (Can be decrease or increase)
