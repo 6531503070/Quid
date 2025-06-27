@@ -8,7 +8,7 @@
   <div align="center">
 
   [![Wally](https://img.shields.io/badge/Wally-Package-orange?style=for-the-badge)](https://wally.run/package/6531503070/Quid)
-  [![Releases](https://img.shields.io/github/v/release/6531503070/Quid?style=for-the-badge)](https://github.com/6531503070/Quid/releases)
+  <!-- [![Releases](https://img.shields.io/github/v/release/6531503070/Quid?style=for-the-badge)](https://github.com/6531503070/Quid/releases) -->
 
   </div>
 </p>
